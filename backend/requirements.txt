@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+google-genai
+feedparser
+APScheduler
+python-dotenv
+pydantic

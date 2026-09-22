@@ -1,6 +1,7 @@
-'use client';
-
 import { useState, useEffect } from 'react';
+import './index.css';
+
+const API_URL = 'http://127.0.0.1:8000/api';
 
 type Digest = {
   id: number;
@@ -8,7 +9,7 @@ type Digest = {
   status: string;
 };
 
-export default function Home() {
+export default function App() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -23,7 +24,7 @@ export default function Home() {
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch('/api/settings');
+      const res = await fetch(`${API_URL}/settings`);
       const data = await res.json();
       if (data.targetEmail) {
         setEmail(data.targetEmail);
@@ -37,7 +38,7 @@ export default function Home() {
 
   const fetchDigests = async () => {
     try {
-      const res = await fetch('/api/digests');
+      const res = await fetch(`${API_URL}/digests`);
       const data = await res.json();
       if (data.digests) {
         setDigests(data.digests);
@@ -53,7 +54,7 @@ export default function Home() {
     setMessage('');
     
     try {
-      const res = await fetch('/api/settings', {
+      const res = await fetch(`${API_URL}/settings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ targetEmail: email }),
@@ -77,10 +78,10 @@ export default function Home() {
     setMessage('Running pipeline... this may take a minute.');
     
     try {
-      const res = await fetch('/api/trigger', {
+      const res = await fetch(`${API_URL}/trigger`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: '' }), // Add token if auth is enabled
+        body: JSON.stringify({ token: '' }),
       });
       
       const data = await res.json();
@@ -89,7 +90,7 @@ export default function Home() {
         setMessage(data.message || 'Pipeline executed successfully.');
         fetchDigests(); // Refresh history
       } else {
-        setMessage(data.error || 'Pipeline execution failed.');
+        setMessage(data.detail || 'Pipeline execution failed.');
       }
     } catch (err) {
       setMessage('Error triggering pipeline.');
@@ -150,8 +151,8 @@ export default function Home() {
             </button>
           </div>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-            The pipeline is scheduled to run automatically at 7:00 AM and 7:45 PM. 
-            You can manually trigger it here for testing. Ensure your SMTP settings are configured in <code>.env.local</code>.
+            The pipeline is scheduled to run automatically at 7:00 AM and 7:45 PM via the Python APScheduler. 
+            You can manually trigger it here for testing. Ensure your SMTP settings are configured in <code>backend/.env</code>.
           </p>
         </section>
 
